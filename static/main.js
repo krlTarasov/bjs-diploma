@@ -38,37 +38,69 @@ class Profile {
     }
 
     сonvertCurrency( {fromCurrency, targetCurrency, targetAmount}, callback ) {
-        return ApiConnector.convertMoney({fromCurrency, targetCurrency, targetAmount}), (err, data) => {
-            console.log(`Converting ${currency} to ${targetAmount} ${targetCurrency}`)
+        return ApiConnector.convertMoney({fromCurrency, targetCurrency, targetAmount}, (err, data) => {
+            console.log(`Converting ${fromCurrency} to ${targetAmount} ${targetCurrency}`)
             callback(err, data);
-        }
+        })
     }
 
     transferToken({to, amount} ,callback) {
-        return ApiConniector.transferMoney({to, amount}, (err, data) => {
+        return ApiConnector.transferMoney({to, amount}, (err, data) => {
             console.log(`Transfering ${amount} to ${to}`)
             callback(err, data);
         })
     }
 }
-let stocks;
-function getStocks() {
-    stocks = ApiConnector.getStocks();
+
+function getRates(callback) {
+    return ApiConnector.getStocks((err, data) => {
+        console.log('Getting rates');
+        callback(err, data);
+    });
 }
 
+
 function main(){
+
+    let rates = getRates((err, data) => {
+        if (err) {
+            console.error('error during getRates');
+        }
+    })
+
+    console.log(rates + '___________________');
+
     const Ivan = new Profile({
                     username: 'ivan',
                     name: { firstName: 'Ivan', lastName: 'Chernyshev' },
                     password: 'ivanspass',
-                });
+    });
+
+    const Maxim = new Profile({
+                    username: 'maxim',
+                    name: { firstName: 'Maxim', lastName: 'Ivanov' },
+                    password: 'maxpass',
+    })
+
     Ivan.addNewUser((err, data) => {
         if (err) {
-            console.error(`Error`)
+            console.error(`Error during addNewUser`);
+        }
+    })
+
+    Maxim.addNewUser((err, data) => {
+        if (err) {
+            console.error('Error')
         }
     })
 
     Ivan.logIn((err, data) => {
+        if (err) {
+            console.error(`Error`)
+        }
+    });
+
+    Maxim.logIn((err, data) => {
         if (err) {
             console.error(`Error`)
         }
@@ -83,7 +115,17 @@ function main(){
         }
     })
 
-    
+    Ivan.сonvertCurrency({fromCurrency: 'EUR', targetCurrency: 'Netcoins', targetAmount: 3600}, (err,data) => {
+        if (err) {
+            console.log('error');
+        }
+    })
+
+    Ivan.transferToken({to: 'maxim', amount: 3600}, (err, data) => {
+        if (err) {
+            console.log('error');
+        }
+    })
 }
 
 main();
